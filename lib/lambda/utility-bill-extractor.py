@@ -94,9 +94,10 @@ def lambda_handler(event, context):
     data = unpack_query(queryResults)
     data['Bill_Date'] = str(datetime.strptime(data['Bill_Date'],'%B %d,%Y'))
     
-    # utilityBillTable = ddb.Table('UtilityBillDataTable')
+    utilityBillTable = ddb.Table('UtilityBillDataTable')
     
-    # utilityBillTable.put_item(data)
+    LOGGER.info('Attempting to put item into UtilityBillDataTable:\n {0}'.format(data))
+    utilityBillTable.put_item(Item=data)
     
     LOGGER.info('Query contains {0} results, cleaned: {1}'.format(len(queryResults)/2,json.dumps(data)))
     
