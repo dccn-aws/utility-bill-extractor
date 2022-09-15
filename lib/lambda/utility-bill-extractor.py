@@ -48,6 +48,13 @@ def unpack_query(results):
     while i < len(results):
         data[results[i]['Query']['Alias']] = results[i+1]['Text']
         i = i+2
+    
+    for schema in ['%B %d,%Y', '%B %d, %Y']:
+        try:
+            data['Bill_Date'] = str(datetime.strptime(data['Bill_Date'],schema))
+        except:
+            pass
+        
     return data
 
 def lambda_handler(event, context):
@@ -92,11 +99,9 @@ def lambda_handler(event, context):
     queryResults = query_S3document(bucket, key, query)
 
     data = unpack_query(queryResults)
-    data['Bill_Date'] = str(datetime.strptime(data['Bill_Date'],'%B %d,%Y'))
     
     utilityBillTable = ddb.Table('UtilityBillDataTable')
     
-    LOGGER.info('Attempting to put item into UtilityBillDataTable:\n {0}'.format(data))
     utilityBillTable.put_item(Item=data)
     
     LOGGER.info('Query contains {0} results, cleaned: {1}'.format(len(queryResults)/2,json.dumps(data)))
