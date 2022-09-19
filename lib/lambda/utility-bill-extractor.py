@@ -119,8 +119,6 @@ def write_bills_to_s3(bills):
     
     for bill in bills:
         filename = "{0}.json".format(bill['activity_event_id'])
-        #with open('/tmp/'+filename, "w") as outfile:
-        #    outfile.write(json.dumps(bill, indent=4))
         s3.put_object(Body=json.dumps(bill,indent=4),
                       Bucket=TRANSFORMED_DATA_BUCKET,
                       Key='scope2-bill-extracted-data/{0}'.format(filename)
@@ -135,6 +133,8 @@ def lambda_handler(event, context):
     resp = s3.list_objects_v2(Bucket=RAW_DATA_BUCKET, Prefix="utility-bills/")
     bills = [b['Key'] for b in resp['Contents'] if '.pdf' in b['Key']]
 
+    # Textract supports a wide variety of natural language queries to run against documents
+    # For this lab, the code requires query aliases of kwh_usage, es_id, utility_provider_name, utility_provider_address, and bill_date
     query = {
                 "Queries":[
                     {
