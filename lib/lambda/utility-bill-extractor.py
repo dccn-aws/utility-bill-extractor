@@ -1,4 +1,5 @@
 import re
+import os
 import json
 import time
 import boto3
@@ -16,8 +17,8 @@ s3 = boto3.client('s3')
 textract = boto3.client('textract')
 awslambda = boto3.client('lambda')
 
-RAW_DATA_BUCKET = 'carbonlake-bills-storage'
-TRANSFORMED_DATA_BUCKET = 'carbonlake-transformed-data'
+RAW_DATA_BUCKET = os.environ.get('RAW_BUCKET_NAME')
+TRANSFORMED_DATA_BUCKET = os.environ.get('TRANSFORMED_BUCKET_NAME')
 
 
 def query_Textract(bills, query):
@@ -130,7 +131,7 @@ def write_bills_to_s3(bills):
 
 def lambda_handler(event, context):
     
-    resp = s3.list_objects_v2(Bucket=RAW_DATA_BUCKET, Prefix="utility-bills/")
+    resp = s3.list_objects_v2(Bucket=RAW_DATA_BUCKET, Prefix="scope2-data/")
     bills = [b['Key'] for b in resp['Contents'] if '.pdf' in b['Key']]
 
     # Textract supports a wide variety of natural language queries to run against documents
