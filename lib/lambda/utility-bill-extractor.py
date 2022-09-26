@@ -120,7 +120,7 @@ def write_bills_to_s3(bills):
     
     for bill in bills:
         filename = "{0}.json".format(bill['activity_event_id'])
-        s3.put_object(Body=json.dumps(bill,indent=4),
+        s3.put_object(Body=json.dumps(bill).replace('\n',''), # calculator expects single line JSON
                       Bucket=TRANSFORMED_DATA_BUCKET,
                       Key='scope2-bill-extracted-data/{0}'.format(filename)
                      )
